@@ -8,7 +8,7 @@
         </tab>
  
         <section 
-            id="redscript_helloworld" 
+            id="redscript_erpnext" 
             translate="label" 
             type="text" 
             sortOrder="10" 
@@ -17,18 +17,45 @@
             showInStore="1">
             <label>ERPNext</label>
             <tab>redscript</tab>
-            <resource>Redscript_HelloWorld::redscript_helloworld</resource>
+            <resource>Redscript_Erpnext::redscript_erpnext</resource>
             <group id="general" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
-                <label>General</label>
+                <label>API</label>
                 <field id="enable" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Enable Hello World</label>
+                    <label>Enable</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <comment>
-                        Comment for `Enable Hello World` setting.
+                        Comment for `Enable ERPNext` setting.
                     </comment>
                 </field>
-                <field id="block_label" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Block Label</label>
+                <field
+                    id="host"
+                    translate="label"
+                    type="text"
+                    sortOrder="20"
+                    showInDefault="1"
+                    showInWebsite="1"
+                    showInStore="1">
+                    <label>Host</label>
+                </field>
+                <field
+                    id="username"
+                    translate="label"
+                    type="text"
+                    sortOrder="20"
+                    showInDefault="1"
+                    showInWebsite="1"
+                    showInStore="1">
+                    <label>Username</label>
+                </field>
+                <field
+                    id="password"
+                    translate="label"
+                    type="password"
+                    sortOrder="20"
+                    showInDefault="1"
+                    showInWebsite="1"
+                    showInStore="1">
+                    <label>Password</label>
                 </field>
             </group>
         </section>

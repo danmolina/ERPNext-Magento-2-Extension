@@ -40,10 +40,7 @@ class FrappeClient {
     private $_curl_timeout = 30;
     private $_limit_page_length = 20;
 
-    function __construct(
-                $usr=""
-                ,$pwd=""
-        ){
+    function __construct($host = NULL, $username = NULL, $password = NULL){
             if(!is_file(ROOTPATH.'/'.self::CONF_FILE )){
                 throw new FrappeClient_Exception(
                             "Config not found:".self::CONF_FILE
@@ -64,12 +61,22 @@ class FrappeClient {
                             ,2
                         );
             }
-            if($usr && $pwd){
+
+            if($host) {
                 $this->_auth = array(
-                    'usr' => $usr,
-                    'pwd' => $pwd,
-                    );
+                    'usr'   => $username,
+                    'pwd'   => $password);
             }
+
+            if($host) {
+                $authUrl    = parse_url($this->_auth_url);
+                $apiUrl     = parse_url($this->_api_url);
+
+
+                $this->_auth_url    = $authUrl['scheme'].'://'.$host.$authUrl['path'];
+                $this->_api_url     = $apiUrl['scheme'].'://'.$host.$apiUrl['path'];
+            }
+
             $this->_auth();
         }
 
@@ -82,6 +89,11 @@ class FrappeClient {
         }else{
             return true;
         }
+    }
+
+    public function setConfig()
+    {
+
     }
 
     private function _auth(){

@@ -6,6 +6,23 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
 {
     public function execute(\Magento\Framework\Event\Observer $observer)
     {
+        //get the object manager
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+        //get the config
+        $config = $objectManager
+            ->get('Magento\Framework\App\Config\ScopeConfigInterface');
+
+        //get the config values
+        $isEnabled  = $config->getValue('redscript_erpnext/general/enable');
+        $host       = $config->getValue('redscript_erpnext/general/host');
+        $username   = $config->getValue('redscript_erpnext/general/username');
+        $password   = $config->getValue('redscript_erpnext/general/password');
+
+        //if the module is disabled
+        if(!$isEnabled || $isEnabled != 1) {
+            return $this;
+        }
+        
         //get the dispatched data
         $product = $observer->getProduct()->getData();
         
@@ -13,7 +30,7 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
         require(dirname(__FILE__).'/lib/FrappeClient.php');
 
         //init the class
-        $client = new \FrappeClient();
+        $client = new \FrappeClient($host, $username, $password);
 
         //save the product data
         $this->_saveProduct($client, $product);
