@@ -60,8 +60,15 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
             $host       = $_SERVER['HTTP_HOST'];
             $protocol   = $_SERVER['REQUEST_SCHEME'];
 
+            $productDir = dirname(__FILE__).'/../../../../../pub/media/catalog/product';
+
             //images can be found here /pub/media/catalog/product
             foreach($product['media_gallery']['images'] as $image) {
+                //check if the file exist
+                if(!file_exists($productDir.$image['file'])) {
+                    continue;
+                }
+
                 //get the filename
                 $filename   = explode('/', $image['file']);
                 $name       = end($filename);
