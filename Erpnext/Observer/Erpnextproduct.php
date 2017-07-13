@@ -13,15 +13,11 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
         // fwrite($pr, json_encode($product));
         // fclose($pr);
 
-        $gallery = array();
-        if(isset($product['media_gallery'])) {
-            $gallery = $product['media_gallery'];
-        }
-
         //get the data
         $data = array(
             'magento_id'        => $product['entity_id'],
             'item_code'         => $product['sku'],
+            'item_name'         => $product['name'],
             'item_group'        => 'Products',
             'stock_uom'         => 'UNIT',
             'is_stock_item'     => $product['stock_data']['qty'],
@@ -47,15 +43,43 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
             'stock'             => array(
                 'qty'       => $product['stock_data']['qty'],
                 'in_stock'  => $product['stock_data']['is_in_stock']),
-            'created_at'    => $product['created_at'],
-
-            //images can be found here /pub/media/catalog/product
-            'media_gallery' => $gallery);
+            'created_at'    => $product['created_at']);
 
 
         require(dirname(__FILE__).'/lib/FrappeClient.php');
 
         $client = new \FrappeClient();
-        $result = $client->insert('Item', $data);
+
+        //insert the product
+        $client->insert('Item', $data);
+
+        //insert the images if not empty
+        if(isset($product['media_gallery']['images']) 
+        && !empty($product['media_gallery']['images'])) {
+            //get the host
+            $host       = $_SERVER['HTTP_HOST'];
+            $protocol   = $_SERVER['REQUEST_SCHEME'];
+
+            //images can be found here /pub/media/catalog/product
+            foreach($product['media_gallery']['images'] as $image) {
+                //get the filename
+                $filename   = explode('/', $image['file']);
+                $name       = end($filename);
+
+                //get the full url
+                $uri = $protocol.'://'.$host.'/pub/media/catalog/product';
+
+                //set the image data
+                $fileContent = array(
+                    'file_name'             => $name,
+                    'file_url'              => $uri.$image['file'],
+                    'attached_to_name'      => $product['sku'],
+                    'attached_to_doctype'   => 'Item',
+                    'is_private'            => 1);
+
+                //add the image
+                $client->insert('File', $fileContent);
+            }
+        }
     }
 }
