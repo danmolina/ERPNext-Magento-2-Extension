@@ -8,19 +8,51 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
     {
         //get the dispatched data
         $product = $observer->getProduct()->getData();
+        
+        //require the library
+        require(dirname(__FILE__).'/lib/FrappeClient.php');
 
-        // $pr = fopen(dirname(__FILE__).'/product.txt', 'w') or die("Unable to open file!");
-        // fwrite($pr, json_encode($product));
-        // fclose($pr);
+        //init the class
+        $client = new \FrappeClient();
 
-        //get the data
+        //save the product data
+        $this->_saveProduct($client, $product);
+
+        //if the quantity is greater than 0
+        if($product['stock_data']['qty'] > 0) {
+            //save the stocks
+            $this->_saveStocks($client, $product);
+        }
+
+        //insert the images if not empty
+        if(isset($product['media_gallery']['images']) 
+        && !empty($product['media_gallery']['images'])) {
+            //get the product image directory
+            $productDir = dirname(__FILE__).'/../../../../../pub/media/catalog/product';
+
+            //images can be found here /pub/media/catalog/product
+            foreach($product['media_gallery']['images'] as $image) {
+                //check if the file exist
+                if(!file_exists($productDir.$image['file'])) {
+                    continue;
+                }
+
+                //save the image
+                $this->_saveImage($client, $image, $product['sku']);
+            }
+        }
+    }
+
+    private function _saveProduct($client, $product)
+    {
         $data = array(
             'magento_id'        => $product['entity_id'],
             'item_code'         => $product['sku'],
             'item_name'         => $product['name'],
             'item_group'        => 'Products',
             'stock_uom'         => 'UNIT',
-            'is_stock_item'     => $product['stock_data']['qty'],
+            'is_stock_item'     => $product['stock_data']['is_in_stock'],
+            'valuation_rate'    => 1,
 
             'store_id'          => $product['store_id'],
             'type_id'           => $product['type_id'],
@@ -45,48 +77,71 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
                 'in_stock'  => $product['stock_data']['is_in_stock']),
             'created_at'    => $product['created_at']);
 
-
-        require(dirname(__FILE__).'/lib/FrappeClient.php');
-
-        $client = new \FrappeClient();
-
         //insert the product
         $client->insert('Item', $data);
 
-        //insert the images if not empty
-        if(isset($product['media_gallery']['images']) 
-        && !empty($product['media_gallery']['images'])) {
-            //get the host
-            $host       = $_SERVER['HTTP_HOST'];
-            $protocol   = $_SERVER['REQUEST_SCHEME'];
+        return $this;
+    }
 
-            $productDir = dirname(__FILE__).'/../../../../../pub/media/catalog/product';
+    private function _saveImage($client, $image, $sku)
+    {
+        //get the host
+        $host       = $_SERVER['HTTP_HOST'];
+        $protocol   = $_SERVER['REQUEST_SCHEME'];
 
-            //images can be found here /pub/media/catalog/product
-            foreach($product['media_gallery']['images'] as $image) {
-                //check if the file exist
-                if(!file_exists($productDir.$image['file'])) {
-                    continue;
-                }
+        //get the filename
+        $filename   = explode('/', $image['file']);
+        $name       = end($filename);
 
-                //get the filename
-                $filename   = explode('/', $image['file']);
-                $name       = end($filename);
+        //get the full url
+        $uri = $protocol.'://'.$host.'/pub/media/catalog/product';
 
-                //get the full url
-                $uri = $protocol.'://'.$host.'/pub/media/catalog/product';
+        //set the image data
+        $fileContent = array(
+            'file_name'             => $name,
+            'file_url'              => $uri.$image['file'],
+            'attached_to_name'      => $sku,
+            'attached_to_doctype'   => 'Item',
+            'is_private'            => 1);
 
-                //set the image data
-                $fileContent = array(
-                    'file_name'             => $name,
-                    'file_url'              => $uri.$image['file'],
-                    'attached_to_name'      => $product['sku'],
-                    'attached_to_doctype'   => 'Item',
-                    'is_private'            => 1);
+        //add the image
+        $client->insert('File', $fileContent);
 
-                //add the image
-                $client->insert('File', $fileContent);
-            }
-        }
+        return $this;
+    }
+
+    private function _saveStocks($client, $product)
+    {
+        $stock = array(
+            'doctype'           => 'Stock Entry',
+            'title'             => 'Material Receipt',
+            'to_warehouse'      => 'Stores - NB',
+            'docstatus'         => 1,
+            'company'           => 'NexusBond ASIA Inc.',
+            'purpose'           => 'Material Receipt',
+            'request_from'      => 'MAGENTO',
+            'items'             => array(
+                array(
+                    'item_code'             => $product['sku'],
+                    'qty'                   => $product['stock_data']['qty'],
+                    't_warehouse'           => 'Stores - NB',
+                    'basic_amount'          => 0.0,
+                    'cost_center'           => 'Main - NB',
+                    'stock_uom'             => 'Kg',
+                    'conversion_factor'     => 1.0,
+                    'docstatus'             => 1,
+                    'uom'                   => 'Kg',
+                    'basic_rate'            => 0.0,
+                    'doctype'               => 'Stock Entry Detail',
+                    'expense_account'       => 'Stock Adjustment - NB',
+                    'parenttype'            => 'Stock Entry',
+                    'parentfield'           => 'items')
+            )
+        );
+
+        //insert the STOCK
+        $client->insert('Stock Entry', $stock);
+        
+        return $this;
     }
 }
