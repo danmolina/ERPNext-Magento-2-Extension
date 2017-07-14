@@ -42,9 +42,9 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
         //get the dispatched data
         $product = $observer->getProduct()->getData();
 
-        // $file = fopen(dirname(__FILE__).'/product.txt', 'w') or die("Unable to open file!");
-        // fwrite($file, json_encode($product));
-        // fclose($file);
+        $file = fopen(dirname(__FILE__).'/product.txt', 'w') or die("Unable to open file!");
+        fwrite($file, json_encode($product));
+        fclose($file);
         // die('dan');
         
         //require the library
