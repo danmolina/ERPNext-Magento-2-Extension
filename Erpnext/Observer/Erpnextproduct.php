@@ -33,12 +33,26 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
         $client = new \FrappeClient($host, $username, $password);
 
         //save the product data
-        $this->_saveProduct($client, $product);
+        try {
+            $this->_saveProduct($client, $product);
 
+            //create logs
+            $this->_createLogs(false, $username, $host, 'Add Item: SUCCESS');
+        } catch(Exception $e) {
+            $this->_createLogs($e, $username, $host, 'Add Item: FAILED');
+        }
+        
         //if the quantity is greater than 0
         if($product['stock_data']['qty'] > 0) {
             //save the stocks
-            $this->_saveStocks($client, $product);
+            try {
+                $this->_saveStocks($client, $product);
+
+                //create logs
+                $this->_createLogs(false, $username, $host, 'Add Stocks: SUCCESS');
+            } catch(Exception $e) {
+                $this->_createLogs($e, $username, $host, 'Add Stocks: FAILED');
+            }
         }
 
         //insert the images if not empty
@@ -55,9 +69,43 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
                 }
 
                 //save the image
-                $this->_saveImage($client, $image, $product['sku']);
+                try {
+                    $this->_saveImage($client, $image, $product['sku']);
+
+                    //create logs
+                    $this->_createLogs(false, $username, $host, 'Add Image: SUCCESS');
+                } catch(Exception $e) {
+                    $this->_createLogs($e, $username, $host, 'Add Image: FAILED');
+                }
             }
         }
+    }
+
+    private function _createLogs($e, $username, $host, $title)
+    {
+        $log  = 'Date: '.date('Y-m-d H:i:s', time()).PHP_EOL;
+        $log .= 'User: '.$_SERVER['REMOTE_ADDR'].' - '.date('F j, Y, g:i a').PHP_EOL;
+        $log .= 'Host: '.$host.PHP_EOL;
+        $log .= 'User: '.$username.PHP_EOL;
+        $log .= 'Title: '.$title.PHP_EOL;
+
+        if($e) {
+            $log .= 'Message: '.$e->getMessage().PHP_EOL;
+        } else {
+            $log .= 'Message: Successfully uploaded data'.PHP_EOL;
+        }
+        
+        $log .= '--------------------------------------------------'.PHP_EOL.PHP_EOL;
+
+        $logsDir = dirname(__FILE__).'/logs';
+
+        //check if the directory exist
+        if(!is_dir($logsDir)) {
+            mkdir($logsDir, 0777);
+        }
+
+        //Save string to log, use FILE_APPEND to append.
+        file_put_contents($logsDir.'/log_'.date('j.n.Y').'.txt', $log, FILE_APPEND);
     }
 
     private function _saveProduct($client, $product)
