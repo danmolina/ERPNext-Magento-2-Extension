@@ -24,7 +24,7 @@
                     <label>Enable</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <comment>
-                        Comment for `Enable ERPNext` setting.
+                        Enable ERPNext Configuration
                     </comment>
                 </field>
                 <field

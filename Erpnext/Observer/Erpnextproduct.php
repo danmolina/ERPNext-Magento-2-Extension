@@ -41,6 +41,11 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
         
         //get the dispatched data
         $product = $observer->getProduct()->getData();
+
+        // $file = fopen(dirname(__FILE__).'/product.txt', 'w') or die("Unable to open file!");
+        // fwrite($file, json_encode($product));
+        // fclose($file);
+        // die('dan');
         
         //require the library
         require(dirname(__FILE__).'/lib/FrappeClient.php');
@@ -134,6 +139,9 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
             'stock_uom'         => 'UNIT',
             'is_stock_item'     => $product['stock_data']['is_in_stock'],
             'valuation_rate'    => 1,
+            'standard_rate'     => $product['price'],
+            'net_weight'        => $product['weight'],
+            'description'       => $product['description'],
 
             'store_id'          => $product['store_id'],
             'type_id'           => $product['type_id'],
