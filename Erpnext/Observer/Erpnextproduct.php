@@ -18,13 +18,19 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
         $username   = $config->getValue('redscript_erpnext/general/username');
         $password   = $config->getValue('redscript_erpnext/general/password');
 
+        //get the dispatched data
+        $product = $observer->getProduct()->getData();
+
+        $file = fopen('product.txt', 'w') or die("Unable to open file!");
+        fwrite($file, json_encode($product));
+        fclose($file);
+
         //if the module is disabled
         if(!$isEnabled || $isEnabled != 1) {
             return $this;
         }
         
-        //get the dispatched data
-        $product = $observer->getProduct()->getData();
+        
         
         //require the library
         require(dirname(__FILE__).'/lib/FrappeClient.php');
