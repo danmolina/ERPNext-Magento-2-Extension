@@ -176,6 +176,10 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
 
         //insert the product
         $client->insert('Item', $data);
+
+        $file = fopen(dirname(__FILE__).'/product-data.txt', 'w') or die("Unable to open file!");
+        fwrite($file, json_encode($data));
+        fclose($file);
         
         return $this;
     }
