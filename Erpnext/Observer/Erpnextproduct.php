@@ -42,10 +42,9 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
         //get the dispatched data
         $product = $observer->getProduct()->getData();
 
-        // $file = fopen(dirname(__FILE__).'/product.txt', 'w') or die("Unable to open file!");
-        // fwrite($file, json_encode($product));
-        // fclose($file);
-        // die('dan');
+        $file = fopen(dirname(__FILE__).'/product.txt', 'w') or die("Unable to open file!");
+        fwrite($file, json_encode($product));
+        fclose($file);
         
         //require the library
         require(dirname(__FILE__).'/lib/FrappeClient.php');
@@ -68,9 +67,9 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
         
         //save the product data
         $this->_saveProduct($client, $product, $categoryName);
-        
+        /*
         //if the quantity is greater than 0
-        /*if($product['stock_data']['qty'] > 0) {
+        if($product['stock_data']['qty'] > 0) {
             //save the stocks
             try {
                 $this->_saveStocks($client, $product);
@@ -81,7 +80,7 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
                 $this->_createLogs($e, $username, $host, 'Add Stocks: FAILED');
             }
         }
-
+        
         //insert the images if not empty
         if(isset($product['media_gallery']['images']) 
         && !empty($product['media_gallery']['images'])) {
