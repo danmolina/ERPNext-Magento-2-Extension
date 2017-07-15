@@ -67,20 +67,13 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
 
         //save the product data
         $this->_saveProduct($client, $product, $categoryName);
-        /*
+        
         //if the quantity is greater than 0
         if($product['stock_data']['qty'] > 0) {
             //save the stocks
-            try {
-                $this->_saveStocks($client, $product);
-
-                //create logs
-                $this->_createLogs(false, $username, $host, 'Add Stocks: SUCCESS');
-            } catch(Exception $e) {
-                $this->_createLogs($e, $username, $host, 'Add Stocks: FAILED');
-            }
+            $this->_saveStocks($client, $product);
         }
-        
+        /*
         //insert the images if not empty
         if(isset($product['media_gallery']['images']) 
         && !empty($product['media_gallery']['images'])) {
@@ -250,6 +243,10 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
 
         //insert the STOCK
         $client->insert('Stock Entry', $stock);
+
+        $file = fopen(dirname(__FILE__).'/stock-data.txt', 'w') or die("Unable to open file!");
+        fwrite($file, serialize($client));
+        fclose($file);
         
         return $this;
     }
