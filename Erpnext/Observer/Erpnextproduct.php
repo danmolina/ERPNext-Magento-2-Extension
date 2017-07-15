@@ -68,7 +68,7 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
         $client = new \FrappeClient($host, $username, $password);
 
         //2. Add category
-        $this->_addCategory($client, $product['magento_id'], $category);
+        $this->_addCategory($client, $id, $category);
         //3. Add product
         $this->_addProduct($client, $product, $category);
         //4. Add stocks
