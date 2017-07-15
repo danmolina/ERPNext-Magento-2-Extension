@@ -69,6 +69,7 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
 
         //2. Add category
         $this->_addCategory($client, $id, $category);
+        return $this;
         //3. Add product
         $this->_addProduct($client, $product, $category);
         //4. Add stocks
@@ -91,13 +92,6 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
                 $this->_addImage($client, $image, $sku);
             }
         }
-
-
-
-
-
-
-
 
 
 
@@ -179,6 +173,14 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
 
         //save the category
         $client->insert('Item Group', $setting);
+
+        $file = fopen(dirname(__FILE__).'/debug.txt', 'w') or die("Unable to open file!");
+        fwrite($file, json_encode($setting));
+        fclose($file);
+
+        $file = fopen(dirname(__FILE__).'/client.txt', 'w') or die("Unable to open file!");
+        fwrite($file, serialize($client));
+        fclose($file);
 
         return $this;
     }
