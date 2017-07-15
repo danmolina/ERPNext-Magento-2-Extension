@@ -53,9 +53,28 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
         //init the class
         $client = new \FrappeClient($host, $username, $password);
 
+        //let's create a category first
+        $categoryName = 'Unknown';
+        if(isset($product['category_ids'][0])) {
+            //get the category name
+            $category = $objectManager->create('Magento\Catalog\Model\Category')
+                ->load($product['category_ids'][0]);
+            
+            $categoryName = $category->getName();
+        }
+
+        //save the category
+        $isCreated = $this->_saveCategory($client, $product, $categoryName);
+        //if the category is not created
+        if(!$isCreated) {
+            $this->_createLogs(false, $username, $host, 'Add Category: ALREADY EXIST');
+        } else {
+            $this->_createLogs(false, $username, $host, 'Add Category: SUCCESS');
+        }
+
         //save the product data
         try {
-            $this->_saveProduct($client, $product);
+            $this->_saveProduct($client, $product, $categoryName);
 
             //create logs
             $this->_createLogs(false, $username, $host, 'Add Item: SUCCESS');
@@ -129,14 +148,13 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
         file_put_contents($logsDir.'/log_'.date('j.n.Y').'.txt', $log, FILE_APPEND);
     }
 
-    private function _saveProduct($client, $product)
+    private function _saveProduct($client, $product, $categoryName)
     {
-        $id = uniqid();
         $data = array(
             'magento_id'        => $product['entity_id'],
             'item_code'         => $product['sku'],
             'item_name'         => $product['name'],
-            'item_group'        => 'Products',
+            'item_group'        => $categoryName,
             'stock_uom'         => 'UNIT',
             'is_stock_item'     => $product['stock_data']['is_in_stock'],
             'valuation_rate'    => 1,
@@ -171,6 +189,30 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
         //insert the product
         $client->insert('Item', $data);
         
+        return $this;
+    }
+
+    private function _saveCategory($client, $product, $categoryName)
+    {
+        $category = array(
+            'magento_id'        => $product['entity_id'],
+            'doctype'           => 'Item Group',
+            'item_group_name'   => $categoryName,
+            'is_group'          => 0,
+            'show_in_website'   => 1,
+            'name'              => $categoryName,
+            'parent_item_group' => 'All Item Groups',
+            'old_parent'        => 'All Item Groups'
+        );
+
+        //insert the category
+        $client->insert('Item Group', $category);
+        
+        //if the uploaded category already exist
+        if(strpos(serialize($client), 'Duplicate entry') !== false) {
+            return false;
+        }
+
         return $this;
     }
 
