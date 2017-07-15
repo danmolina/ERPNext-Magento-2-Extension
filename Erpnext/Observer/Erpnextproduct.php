@@ -65,6 +65,7 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
         //save the category
         $this->_saveCategory($client, $product, $categoryName);
         
+        $client = new \FrappeClient($host, $username, $password);
         //save the product data
         $this->_saveProduct($client, $product, $categoryName);
         /*
@@ -138,7 +139,6 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
 
     private function _saveProduct($client, $product, $categoryName)
     {
-
         $data = array(
             'magento_id'        => $product['entity_id'],
             'item_code'         => $product['sku'],
