@@ -42,10 +42,6 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
         //get the dispatched data
         $product = $observer->getProduct()->getData();
 
-        $file = fopen(dirname(__FILE__).'/product.txt', 'w') or die("Unable to open file!");
-        fwrite($file, json_encode($product));
-        fclose($file);
-        
         //require the library
         require(dirname(__FILE__).'/lib/FrappeClient.php');
 
@@ -63,7 +59,7 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
         }
 
         //save the category
-        $this->_saveCategory($client, $product, $categoryName);
+        //$this->_saveCategory($client, $product, $categoryName);
 
         //save the product data
         $this->_saveProduct($client, $product, $categoryName);
@@ -73,7 +69,7 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
             //save the stocks
             $this->_saveStocks($client, $product);
         }
-        /*
+        
         //insert the images if not empty
         if(isset($product['media_gallery']['images']) 
         && !empty($product['media_gallery']['images'])) {
@@ -97,7 +93,7 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
                     $this->_createLogs($e, $username, $host, 'Add Image: FAILED');
                 }
             }
-        }*/
+        }
 
         return $this;
     }
@@ -131,11 +127,10 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
 
     private function _saveProduct($client, $product, $categoryName)
     {
-        $id = uniqid();
         $data = array(
             'magento_id'        => $product['entity_id'],
-            'item_code'         => $product['sku'].$id,
-            'item_name'         => $product['name'].$id,
+            'item_code'         => $product['sku'],
+            'item_name'         => $product['name'],
             'item_group'        => $categoryName,
             'stock_uom'         => 'UNIT',
             'is_stock_item'     => $product['stock_data']['is_in_stock'],
@@ -153,10 +148,6 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
 
         //insert the product
         $client->insert('Item', $data);
-
-        $file = fopen(dirname(__FILE__).'/product-data.txt', 'w') or die("Unable to open file!");
-        fwrite($file, serialize($client));
-        fclose($file);
 
         return $this;
     }
@@ -248,10 +239,6 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
         //insert the STOCK
         $client->insert('Stock Entry', $stock);
 
-        $file = fopen(dirname(__FILE__).'/stock-data.txt', 'w') or die("Unable to open file!");
-        fwrite($file, serialize($client));
-        fclose($file);
-        
         return $this;
     }
 }
