@@ -138,6 +138,7 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
 
     private function _saveProduct($client, $product, $categoryName)
     {
+
         $data = array(
             'magento_id'        => $product['entity_id'],
             'item_code'         => $product['sku'],
@@ -146,33 +147,16 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
             'stock_uom'         => 'UNIT',
             'is_stock_item'     => $product['stock_data']['is_in_stock'],
             'valuation_rate'    => 1,
-            'standard_rate'     => (float) $product['price'],
-            'net_weight'        => ($product['weight']) ? (float) $product['weight'] : NULL,
-            'description'       => ($product['description']) ? $product['description'] : NULL
-
-            // 'store_id'          => $product['store_id'],
-            // 'type_id'           => $product['type_id'],
-            // 'attribute_set_id'  => $product['attribute_set_id'],
-            // 'visibility'        => $product['visibility'],
-            // 'tax_class_id'      => $product['tax_class_id'],
-            // 'categories'        => $product['category_ids'],
-            // 'product'           => array(
-            //     'id'        => $product['entity_id'],
-            //     'name'      => $product['name'],
-            //     'sku'       => $product['sku'],
-            //     'price'     => $product['price'],
-            //     'status'    => $product['status'],
-            //     'weight'    => $product['weight'],
-            //     'new'       => array(
-            //         'news_from_date'    => $product['news_from_date'],
-            //         'news_to_date'      => $product['news_to_date']),
-            //     'description'           => $product['description'],
-            //     'short_description'     => $product['short_description']),
-            // 'stock'             => array(
-            //     'qty'       => $product['stock_data']['qty'],
-            //     'in_stock'  => $product['stock_data']['is_in_stock']),
-            // 'created_at'    => $product['created_at']
+            'standard_rate'     => (float) $product['price']
         );
+
+        if(!empty($product['weight'])) {
+            $data['net_weight'] = (float) $product['weight'];
+        }
+
+        if(!empty($product['description'])) {
+            $data['description'] = $product['description'];
+        }
 
         //insert the product
         $client->insert('Item', $data);
