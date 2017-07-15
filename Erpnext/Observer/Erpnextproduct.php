@@ -67,7 +67,7 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
 
         //save the product data
         $this->_saveProduct($client, $product, $categoryName);
-        /*
+        
         //if the quantity is greater than 0
         if($product['stock_data']['qty'] > 0) {
             //save the stocks
@@ -104,7 +104,7 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
                     $this->_createLogs($e, $username, $host, 'Add Image: FAILED');
                 }
             }
-        }*/
+        }
 
         return $this;
     }
