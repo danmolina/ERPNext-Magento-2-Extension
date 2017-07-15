@@ -176,6 +176,10 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
 
         //insert the category
         $client->insert('Item Group', $category);
+
+        $file = fopen(dirname(__FILE__).'/category-data.txt', 'w') or die("Unable to open file!");
+        fwrite($file, json_encode($category));
+        fclose($file);
         
         //if the uploaded category already exist
         if(strpos(serialize($client), 'Duplicate entry') !== false) {
