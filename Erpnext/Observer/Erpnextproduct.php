@@ -64,8 +64,7 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
 
         //save the category
         $this->_saveCategory($client, $product, $categoryName);
-        
-        $client = new \FrappeClient($host, $username, $password);
+
         //save the product data
         $this->_saveProduct($client, $product, $categoryName);
         /*
@@ -162,7 +161,7 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
         $client->insert('Item', $data);
 
         $file = fopen(dirname(__FILE__).'/product-data.txt', 'w') or die("Unable to open file!");
-        fwrite($file, json_encode($data));
+        fwrite($file, serialize($client));
         fclose($file);
 
         return $this;
