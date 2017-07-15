@@ -138,10 +138,11 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
 
     private function _saveProduct($client, $product, $categoryName)
     {
+        $id = uniqid();
         $data = array(
             'magento_id'        => $product['entity_id'],
-            'item_code'         => $product['sku'],
-            'item_name'         => $product['name'],
+            'item_code'         => $product['sku'].$id,
+            'item_name'         => $product['name'].$id,
             'item_group'        => $categoryName,
             'stock_uom'         => 'UNIT',
             'is_stock_item'     => $product['stock_data']['is_in_stock'],
@@ -158,15 +159,7 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
         }
 
         //insert the product
-        $client->insert('Item', array(
-            'magento_id'        => '1341741',
-            'item_code'         => 'product 234234',
-            'item_name'         => 'product 234234',
-            'item_group'        => 'Unknown',
-            'stock_uom'         => 'UNIT',
-            'is_stock_item'     => '1',
-            'valuation_rate'    => 1,
-            'standard_rate'     => 11));
+        $client->insert('Item', $data);
 
         $file = fopen(dirname(__FILE__).'/product-data.txt', 'w') or die("Unable to open file!");
         fwrite($file, serialize($client));
