@@ -5,6 +5,9 @@ namespace Redscript\Erpnext\Observer;
 class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
 {
     protected $_request;
+    protected $_host        = NULL;
+    protected $_username    = NULL;
+    protected $_password    = NULL;
 
     public function __construct(\Magento\Framework\App\RequestInterface $request)
     {
@@ -20,10 +23,10 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
             ->get('Magento\Framework\App\Config\ScopeConfigInterface');
 
         //get the config values
-        $isEnabled  = $config->getValue('redscript_erpnext/general/enable');
-        $host       = $config->getValue('redscript_erpnext/general/host');
-        $username   = $config->getValue('redscript_erpnext/general/username');
-        $password   = $config->getValue('redscript_erpnext/general/password');
+        $isEnabled          = $config->getValue('redscript_erpnext/general/enable');
+        $this->_host        = $config->getValue('redscript_erpnext/general/host');
+        $this->_username    = $config->getValue('redscript_erpnext/general/username');
+        $this->_password    = $config->getValue('redscript_erpnext/general/password');
 
         //get the request parameters
         $params = $this->_request->getParams();
@@ -65,17 +68,16 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
 
         //1. init the library
         require(dirname(__FILE__).'/lib/FrappeClient.php');
-        $client = new \FrappeClient($host, $username, $password);
+        //authenticate the user
+        //this will generate the cookie
+        new \FrappeClient($this->_host, $this->_username, $this->_password);
 
         //2. Add category
-        $this->_addCategory($client, $id, $category);
+        $this->_addCategory($id, $category);
         //3. Add product
-        $this->_addProduct($client, $product, $category);
+        $this->_addProduct($product, $category);
         //4. Add stocks
-        $this->_addStocks($client, $sku, $qty);
-        echo '<pre>';
-        print_r($client);
-        exit;
+        $this->_addStocks($sku, $qty);
         //5. Add image
         //if there is an image
         if(isset($product['media_gallery']['images']) 
@@ -91,14 +93,14 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
                 }
 
                 //add the image
-                $this->_addImage($client, $image, $sku);
+                $this->_addImage($image, $sku);
             }
         }
 
         return $this;
     }
 
-    private function _addCategory($client, $magentoId, $category)
+    private function _addCategory($magentoId, $category)
     {
         //category information
         $setting = array(
@@ -112,12 +114,10 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
             'old_parent'        => 'All Item Groups');
 
         //save the category
-        $client->insert('Item Group', $setting);
-
-        return $this;
+        return $this->_sendPost('Item Group', $setting);
     }
 
-    private function _addImage($client, $image, $sku)
+    private function _addImage($image, $sku)
     {
         //get the host
         $host       = $_SERVER['HTTP_HOST'];
@@ -137,13 +137,10 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
             'attached_to_doctype'   => 'Item',
             'is_private'            => 1);
 
-        //save the file
-        $client->insert('File', $setting);
-
-        return $this;
+        return $this->_sendPost('File', $setting);
     }
 
-    private function _addProduct($client, $product, $category)
+    private function _addProduct($product, $category)
     {
         //product information
         $setting = array(
@@ -164,21 +161,10 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
             $setting['description'] = $product['description'];
         }
 
-        //save the product
-        $client->insert('Item', $setting);
-
-        // $file = fopen(dirname(__FILE__).'/debug.txt', 'w') or die("Unable to open file!");
-        // fwrite($file, json_encode($setting));
-        // fclose($file);
-
-        // $file = fopen(dirname(__FILE__).'/client.txt', 'w') or die("Unable to open file!");
-        // fwrite($file, serialize($client));
-        // fclose($file);
-
-        return $this;
+        return $this->_sendPost('Item', $setting);
     }
 
-    private function _addStocks($client, $sku, $qty)
+    private function _addStocks($sku, $qty)
     {
         //if the quantity is empty or less than 1
         if(!$qty || $qty < 1) {
@@ -212,9 +198,33 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
                     'parentfield'           => 'items')
             ));
 
-        //save the stock
-        $client->insert('Stock Entry', $setting);
+        return $this->_sendPost('Stock Entry', $setting);
+    }
 
-        return $this;
+    private function _sendPost($doctype, $setting)
+    {
+        $cookieFile = dirname(__FILE__).'/lib/cookie.txt';
+        //set the url
+        $url = $this->_host.'/api/resource/'.$doctype;
+
+        $data   = json_encode($setting);
+        $length = strlen($data);
+
+        //setup the curl
+        $ch = curl_init($url);
+
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_HEADER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            'Content-Type: application/json',
+            'Content-Length: ' . $length));
+        curl_setopt($ch, CURLOPT_COOKIEJAR, $cookieFile);
+        curl_setopt($ch, CURLOPT_COOKIEFILE, $cookieFile);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+        curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+
+        return curl_exec($ch);
     }
 }

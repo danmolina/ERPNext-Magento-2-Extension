@@ -49,13 +49,19 @@ class FrappeClient {
             }
 
             $conf = include(ROOTPATH.'/'.self::CONF_FILE);
-            
+
             foreach($conf as $key => $value){
+                if($key == 'cookie_file') {
+                    $this->_cookie_file = dirname(__FILE__).'/'.$value;
+                    continue;
+                }
+
                 if(property_exists($this, '_'.$key)){
                     $this->{'_'.$key} = $value;
                 }
             }
-            if(!is_writable( dirname( $this->_cookie_file) ) ){
+            
+            if(!is_writable(dirname($this->_cookie_file))){
                 throw new FrappeClient_Exception(
                             "Cookie file not writable:".$this->_cookie_file
                             ,2
@@ -100,6 +106,7 @@ class FrappeClient {
         if(is_file($this->_cookie_file)){
             @unlink($this->_cookie_file);
         }
+
         $login_result = $this->_curl('AUTH',$this->_auth);
         if(isset($login_result->body->message)){
             $this->is_auth = true;
