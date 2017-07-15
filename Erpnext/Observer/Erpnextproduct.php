@@ -64,26 +64,13 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
         }
 
         //save the category
-        $isCreated = $this->_saveCategory($client, $product, $categoryName);
-        //if the category is not created
-        if(!$isCreated) {
-            $this->_createLogs(false, $username, $host, 'Add Category: ALREADY EXIST');
-        } else {
-            $this->_createLogs(false, $username, $host, 'Add Category: SUCCESS');
-        }
-
+        $this->_saveCategory($client, $product, $categoryName);
+        
         //save the product data
-        try {
-            $this->_saveProduct($client, $product, $categoryName);
-
-            //create logs
-            $this->_createLogs(false, $username, $host, 'Add Item: SUCCESS');
-        } catch(Exception $e) {
-            $this->_createLogs($e, $username, $host, 'Add Item: FAILED');
-        }
+        $this->_saveProduct($client, $product, $categoryName);
         
         //if the quantity is greater than 0
-        if($product['stock_data']['qty'] > 0) {
+        /*if($product['stock_data']['qty'] > 0) {
             //save the stocks
             try {
                 $this->_saveStocks($client, $product);
@@ -118,7 +105,9 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
                     $this->_createLogs($e, $username, $host, 'Add Image: FAILED');
                 }
             }
-        }
+        }*/
+
+        return $this;
     }
 
     private function _createLogs($e, $username, $host, $title)
@@ -159,8 +148,8 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
             'is_stock_item'     => $product['stock_data']['is_in_stock'],
             'valuation_rate'    => 1,
             'standard_rate'     => (float) $product['price'],
-            'net_weight'        => (float) $product['weight'],
-            'description'       => $product['description'],
+            'net_weight'        => ($product['weight']) ? (float) $product['weight'] : NULL,
+            'description'       => ($product['description']) ? $product['description'] : NULL
 
             // 'store_id'          => $product['store_id'],
             // 'type_id'           => $product['type_id'],
