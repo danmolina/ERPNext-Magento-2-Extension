@@ -216,7 +216,7 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
             $setting['description'] = $product['description'];
         }
 
-        $this->_sendPost('Item', $setting);
+        return $this->_sendPost('Item', $setting);
     }
 
     private function _addStocks($sku, $qty)
@@ -281,5 +281,9 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
         curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
 
         $response = curl_exec($ch);
+
+        if(curl_errno($ch)) {
+            return $this;
+        }
     }
 }
