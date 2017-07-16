@@ -77,7 +77,7 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
         //product information
         $setting = array(
             'magento_id'        => $id,
-            'item_code'         => $sku,
+            'item_code'         => $sku.uniqid(),
             'item_name'         => $product['name'],
             'item_group'        => $category,
             'stock_uom'         => 'UNIT',
