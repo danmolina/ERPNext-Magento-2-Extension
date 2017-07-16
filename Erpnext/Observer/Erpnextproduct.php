@@ -73,6 +73,17 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
         //this will generate the cookie
         new \FrappeClient($this->_host, $this->_username, $this->_password);
 
+        //Add product
+        echo 'prepare prouct';
+        $this->_addProduct($product, $category);
+        echo 'done';
+        return $this;
+
+
+
+
+
+
         //3. Add product
         //product information
         $productSetting = array(
@@ -205,8 +216,7 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
             $setting['description'] = $product['description'];
         }
 
-        //return $this->_client->insert('Item', $setting);
-        return $this->_sendPost('Item', $setting);
+        $this->_sendPost('Item', $setting);
     }
 
     private function _addStocks($sku, $qty)
@@ -248,7 +258,6 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
 
     private function _sendPost($doctype, $setting)
     {
-        echo 'second 1';
         $cookieFile = dirname(__FILE__).'/lib/cookie.txt';
         //set the url
         $url = $this->_host.'/api/resource/'.$doctype;
@@ -272,18 +281,5 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
         curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
 
         $response = curl_exec($ch);
-
-        if(!curl_errno($ch)) {
-            // $info = curl_getinfo($ch);
-            // echo '<pre>';
-            // print_r($info);
-            // echo '</pre>';
-            // echo '<pre>';
-            // print_r($response);
-            // echo '</pre>';
-            // exit;
-        }
-        echo 'second 2';
-        return $this;
     }
 }
