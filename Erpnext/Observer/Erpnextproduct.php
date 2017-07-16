@@ -77,10 +77,8 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
         //$cat = $this->_addCategory($id, $category);
         
         //3. Add product
-        $prod = $this->_addProduct($product, $category);
-        echo '<pre>';
-        print_r($prod);
-        exit;
+        $this->_addProduct($product, $category);
+
         //4. Add stocks
         $this->_addStocks($sku, $qty);
         //5. Add image
@@ -166,8 +164,8 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
             $setting['description'] = $product['description'];
         }
 
-        return $this->_client->insert('Item', $setting);
-        //return $this->_sendPost('Item', $setting);
+        //return $this->_client->insert('Item', $setting);
+        return $this->_sendPost('Item', $setting);
     }
 
     private function _addStocks($sku, $qty)
