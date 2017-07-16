@@ -72,7 +72,13 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
 
         // GET ITEMS
         $result = $client->search('Item Group', array());
+        echo '<pre>';
+        print_r($result);
+        echo '</pre>';
         foreach($result->body->data as $data) {
+            echo '<pre>';
+            print_r($data->name);
+            echo '</pre>';
             //if category exist
             if(strtoupper($data->name) == strtoupper($category)) {
                 $categoryExist = true;
