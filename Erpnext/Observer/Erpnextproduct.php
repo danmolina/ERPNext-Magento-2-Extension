@@ -73,12 +73,13 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
         //this will generate the cookie
         $client = new \FrappeClient($this->_host, $this->_username, $this->_password);
 
+        $id = uniqid();
         //product information
         $setting = array(
             'magento_id'        => $product['entity_id'],
-            'item_code'         => $product['sku'],
-            'item_name'         => $product['name'],
-            'item_group'        => $category,
+            'item_code'         => $id,
+            'item_name'         => $product['name'].$id,
+            'item_group'        => 'Product',
             'stock_uom'         => 'UNIT',
             'is_stock_item'     => '1',
             'valuation_rate'    => 1,
