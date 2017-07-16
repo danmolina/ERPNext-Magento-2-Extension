@@ -281,11 +281,12 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
             echo '<pre>';
             print_r($info);
             echo '</pre>';
+            echo '<pre>';
+            print_r($response);
+            echo '</pre>';
+            exit;
         }
 
-        echo '<pre>';
-        print_r($response);
-        echo '</pre>';
-        exit;
+        return $this;
     }
 }
