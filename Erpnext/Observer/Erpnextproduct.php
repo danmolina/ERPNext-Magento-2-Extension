@@ -125,6 +125,24 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
         $this->_sendPost('Item', $settings['product']);
         //save the stocks
         $this->_addStocks($sku, $qty);
+        //5. Add image
+        //if there is an image
+        if(isset($product['media_gallery']['images']) 
+        && !empty($product['media_gallery']['images'])) {
+            //get the product image directory
+            $productDir = dirname(__FILE__).'/../../../../../pub/media/catalog/product';
+
+            //images can be found here /pub/media/catalog/product
+            foreach($product['media_gallery']['images'] as $image) {
+                //check if the file exist
+                if(!file_exists($productDir.$image['file'])) {
+                    continue;
+                }
+
+                //add the image
+                $this->_addImage($image, $sku);
+            }
+        }
     }
 
     private function _addStocks($sku, $qty)
@@ -164,6 +182,29 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
         return $this->_sendPost('Stock Entry', $setting);
     }
 
+    private function _addImage($image, $sku)
+    {
+        //get the host
+        $host       = $_SERVER['HTTP_HOST'];
+        $protocol   = $_SERVER['REQUEST_SCHEME'];
+
+        //get the filename
+        $filename   = explode('/', $image['file']);
+        $name       = end($filename);
+
+        //get the full url
+        $uri = $protocol.'://'.$host.'/pub/media/catalog/product';
+        //set the image information
+        $setting = array(
+            'file_name'             => $name,
+            'file_url'              => $uri.$image['file'],
+            'attached_to_name'      => $sku,
+            'attached_to_doctype'   => 'Item',
+            'is_private'            => 1);
+
+        return $this->_sendPost('File', $setting);
+    }
+
     private function _sendPost($doctype, $setting)
     {
         $cookieFile = dirname(__FILE__).'/lib/cookie.txt';
@@ -189,5 +230,7 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
         curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
 
         $response = curl_exec($ch);
+
+        return $this;
     }
 }
