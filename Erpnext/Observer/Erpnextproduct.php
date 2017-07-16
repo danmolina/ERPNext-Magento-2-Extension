@@ -74,7 +74,27 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
         new \FrappeClient($this->_host, $this->_username, $this->_password);
 
         //3. Add product
-        $this->_addProduct($product, $category);
+        //product information
+        $setting = array(
+            'magento_id'        => $id,
+            'item_code'         => $sku,
+            'item_name'         => $product['name'],
+            'item_group'        => $category,
+            'stock_uom'         => 'UNIT',
+            'is_stock_item'     => '1',
+            'valuation_rate'    => 1,
+            'standard_rate'     => (float) $product['price']);
+
+        if(!empty($product['weight'])) {
+            $setting['net_weight'] = (float) $product['weight'];
+        }
+
+        if(!empty($product['description'])) {
+            $setting['description'] = $product['description'];
+        }
+
+        //$client->insert('Item', $setting);
+        $this->_sendPost('Item', $setting);
 
         return $this;
 
@@ -189,8 +209,8 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
             $setting['description'] = $product['description'];
         }
 
-        //return $this->_client->insert('Item', $setting);
-        return $this->_sendPost('Item', $setting);
+        return $this->_client->insert('Item', $setting);
+        //return $this->_sendPost('Item', $setting);
     }
 
     private function _addStocks($sku, $qty)
