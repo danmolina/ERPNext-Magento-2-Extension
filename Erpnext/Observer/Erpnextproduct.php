@@ -274,13 +274,18 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
         curl_setopt($ch, CURLOPT_TIMEOUT, 30);
         curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
 
-        curl_exec($ch);
+        $response = curl_exec($ch);
 
         if(!curl_errno($ch)) {
             $info = curl_getinfo($ch);
             echo '<pre>';
             print_r($info);
-            exit;
+            echo '</pre>';
         }
+
+        echo '<pre>';
+        print_r($response);
+        echo '</pre>';
+        exit;
     }
 }
