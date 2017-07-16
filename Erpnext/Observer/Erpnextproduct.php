@@ -94,7 +94,8 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
                 'old_parent'        => 'All Item Groups'));
         }
 
-        echo 'Is '.$category.' exist? '.($categoryExist) ? 'yes' : 'no';
+        echo 'Category: '.$category.' <br />';
+        echo 'Is exist?: '.($categoryExist) ? 'yes' : 'no';
         exit;
 
 
