@@ -73,20 +73,6 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
         //this will generate the cookie
         new \FrappeClient($this->_host, $this->_username, $this->_password);
 
-        //2. category information
-        $categorySetting = array(
-            'magento_id'        => $id,
-            'doctype'           => 'Item Group',
-            'item_group_name'   => $category,
-            'is_group'          => 0,
-            'show_in_website'   => 1,
-            'name'              => $category,
-            'parent_item_group' => 'All Item Groups',
-            'old_parent'        => 'All Item Groups');
-
-        //save the category
-        $this->_sendPost('Item Group', $categorySetting);
-
         //3. Add product
         //product information
         $productSetting = array(
@@ -107,8 +93,10 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
             $productSetting['description'] = $product['description'];
         }
 
+        echo 'first';
         $this->_sendPost('Item', $productSetting);
-
+        echo 'last';
+        exit;
         return $this;
 
 
@@ -260,6 +248,7 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
 
     private function _sendPost($doctype, $setting)
     {
+        echo 'second 1';
         $cookieFile = dirname(__FILE__).'/lib/cookie.txt';
         //set the url
         $url = $this->_host.'/api/resource/'.$doctype;
@@ -294,7 +283,7 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
             // echo '</pre>';
             // exit;
         }
-
+        echo 'second 2';
         return $this;
     }
 }
