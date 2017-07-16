@@ -79,7 +79,7 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
             'magento_id'        => $product['entity_id'],
             'item_code'         => $id,
             'item_name'         => $product['name'].$id,
-            'item_group'        => 'Product',
+            'item_group'        => $category,
             'stock_uom'         => 'UNIT',
             'is_stock_item'     => '1',
             'valuation_rate'    => 1,
