@@ -71,7 +71,50 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
         require(dirname(__FILE__).'/lib/FrappeClient.php');
         //authenticate the user
         //this will generate the cookie
-        $this->_client = new \FrappeClient($this->_host, $this->_username, $this->_password);
+        $client = new \FrappeClient($this->_host, $this->_username, $this->_password);
+
+        //product information
+        $setting = array(
+            'magento_id'        => $product['entity_id'],
+            'item_code'         => $product['sku'],
+            'item_name'         => $product['name'],
+            'item_group'        => $category,
+            'stock_uom'         => 'UNIT',
+            'is_stock_item'     => '1',
+            'valuation_rate'    => 1,
+            'standard_rate'     => (float) $product['price']);
+
+        if(!empty($product['weight'])) {
+            $setting['net_weight'] = (float) $product['weight'];
+        }
+
+        if(!empty($product['description'])) {
+            $setting['description'] = $product['description'];
+        }
+
+        $client->insert('Item', $setting);
+
+        return $this;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         //2. Add category
         //$cat = $this->_addCategory($id, $category);
