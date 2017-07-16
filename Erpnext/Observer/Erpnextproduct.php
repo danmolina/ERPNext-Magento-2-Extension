@@ -164,8 +164,8 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
             $setting['description'] = $product['description'];
         }
 
-        //return $this->_client->insert('Item', $setting);
-        return $this->_sendPost('Item', $setting);
+        return $this->_client->insert('Item', $setting);
+        //return $this->_sendPost('Item', $setting);
     }
 
     private function _addStocks($sku, $qty)
