@@ -74,7 +74,7 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
         new \FrappeClient($this->_host, $this->_username, $this->_password);
 
         //2. Add category
-        //$this->_addCategory($id, $category);
+        $this->_addCategory($id, $category);
         
         //3. Add product
         $this->_addProduct($product, $category);
@@ -279,14 +279,14 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
         $response = curl_exec($ch);
 
         if(!curl_errno($ch)) {
-            $info = curl_getinfo($ch);
-            echo '<pre>';
-            print_r($info);
-            echo '</pre>';
-            echo '<pre>';
-            print_r($response);
-            echo '</pre>';
-            exit;
+            // $info = curl_getinfo($ch);
+            // echo '<pre>';
+            // print_r($info);
+            // echo '</pre>';
+            // echo '<pre>';
+            // print_r($response);
+            // echo '</pre>';
+            // exit;
         }
 
         return $this;
