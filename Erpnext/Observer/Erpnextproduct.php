@@ -72,28 +72,13 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
 
         // GET ITEMS
         $result = $client->search('Item Group', array());
-        echo '<pre>';
-        print_r($result);
-        echo '</pre>';
         foreach($result->body->data as $data) {
-            echo '<pre>';
-            print_r($data->name);
-            echo '</pre>';
             //if category exist
             if(strtoupper($data->name) == strtoupper($category)) {
                 $categoryExist = true;
                 break;
             }
         }
-
-        echo 'Category: ';
-        echo '<pre>';
-        print_r($category);
-        echo '</pre>';
-        echo 'Is exist? ';
-        echo '<pre>';
-        print_r($categoryExist);
-        echo '</pre>';
 
         //if category does not exist
         if(!$categoryExist) {
@@ -108,9 +93,6 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
                 'parent_item_group' => 'All Item Groups',
                 'old_parent'        => 'All Item Groups'));
         }
-
-        exit;
-
 
         //if the quantity is greater than 0
         if($product['stock_data']['qty'] > 0) {
