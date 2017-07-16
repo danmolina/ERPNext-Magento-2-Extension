@@ -86,6 +86,15 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
             }
         }
 
+        echo 'Category: ';
+        echo '<pre>';
+        print_r($category);
+        echo '</pre>';
+        echo 'Is exist? ';
+        echo '<pre>';
+        print_r($categoryExist);
+        echo '</pre>';
+
         //if category does not exist
         if(!$categoryExist) {
             //let's create it
@@ -100,8 +109,6 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
                 'old_parent'        => 'All Item Groups'));
         }
 
-        echo 'Category: '.$category.' <br />';
-        echo 'Is exist?: '.($categoryExist) ? 'yes' : 'no';
         exit;
 
 
