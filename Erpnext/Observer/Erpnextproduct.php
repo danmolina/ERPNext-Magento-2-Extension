@@ -73,6 +73,8 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
         //this will generate the cookie
         new \FrappeClient($this->_host, $this->_username, $this->_password);
 
+        //Add category
+        $this->_addCategory($id, $category);
         //Add product
         $this->_addProduct($product, $category);
         
