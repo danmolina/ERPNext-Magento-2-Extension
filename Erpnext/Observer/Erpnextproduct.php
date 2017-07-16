@@ -8,6 +8,7 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
     protected $_host        = NULL;
     protected $_username    = NULL;
     protected $_password    = NULL;
+    protected $_client      = NULL;
 
     public function __construct(\Magento\Framework\App\RequestInterface $request)
     {
@@ -70,14 +71,16 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
         require(dirname(__FILE__).'/lib/FrappeClient.php');
         //authenticate the user
         //this will generate the cookie
-        new \FrappeClient($this->_host, $this->_username, $this->_password);
+        $this->_client = new \FrappeClient($this->_host, $this->_username, $this->_password);
 
         //2. Add category
         //$cat = $this->_addCategory($id, $category);
         
         //3. Add product
-        $this->_addProduct($product, $category);
-        
+        $prod = $this->_addProduct($product, $category);
+        echo '<pre>';
+        print_r($prod);
+        exit;
         //4. Add stocks
         $this->_addStocks($sku, $qty);
         //5. Add image
@@ -163,7 +166,8 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
             $setting['description'] = $product['description'];
         }
 
-        return $this->_sendPost('Item', $setting);
+        return $this->_client->insert('Item', $setting);
+        //return $this->_sendPost('Item', $setting);
     }
 
     private function _addStocks($sku, $qty)
