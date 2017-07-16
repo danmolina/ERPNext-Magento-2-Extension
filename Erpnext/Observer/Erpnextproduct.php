@@ -73,6 +73,35 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
         //this will generate the cookie
         new \FrappeClient($this->_host, $this->_username, $this->_password);
 
+        //2. Add category
+        $this->_addCategory($id, $category);
+        
+        //3. Add product
+        $this->_addProduct($product, $category);
+
+        //4. Add stocks
+        $this->_addStocks($sku, $qty);
+        //5. Add image
+        //if there is an image
+        if(isset($product['media_gallery']['images']) 
+        && !empty($product['media_gallery']['images'])) {
+            //get the product image directory
+            $productDir = dirname(__FILE__).'/../../../../../pub/media/catalog/product';
+
+            //images can be found here /pub/media/catalog/product
+            foreach($product['media_gallery']['images'] as $image) {
+                //check if the file exist
+                if(!file_exists($productDir.$image['file'])) {
+                    continue;
+                }
+
+                //add the image
+                $this->_addImage($image, $sku);
+            }
+        }
+
+        return $this;
+
         //3. Add product
         //product information
         $setting = array(
@@ -118,34 +147,7 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
 
 
 
-        //2. Add category
-        //$cat = $this->_addCategory($id, $category);
         
-        //3. Add product
-        $this->_addProduct($product, $category);
-
-        //4. Add stocks
-        /*$this->_addStocks($sku, $qty);
-        //5. Add image
-        //if there is an image
-        if(isset($product['media_gallery']['images']) 
-        && !empty($product['media_gallery']['images'])) {
-            //get the product image directory
-            $productDir = dirname(__FILE__).'/../../../../../pub/media/catalog/product';
-
-            //images can be found here /pub/media/catalog/product
-            foreach($product['media_gallery']['images'] as $image) {
-                //check if the file exist
-                if(!file_exists($productDir.$image['file'])) {
-                    continue;
-                }
-
-                //add the image
-                $this->_addImage($image, $sku);
-            }
-        }*/
-
-        return $this;
     }
 
     private function _addCategory($magentoId, $category)
@@ -209,8 +211,8 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
             $setting['description'] = $product['description'];
         }
 
-        return $this->_client->insert('Item', $setting);
-        //return $this->_sendPost('Item', $setting);
+        //return $this->_client->insert('Item', $setting);
+        return $this->_sendPost('Item', $setting);
     }
 
     private function _addStocks($sku, $qty)
