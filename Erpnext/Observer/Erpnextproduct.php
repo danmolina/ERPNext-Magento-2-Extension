@@ -94,6 +94,9 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
                 'old_parent'        => 'All Item Groups'));
         }
 
+        echo 'Is '.$category.' exist? '.($categoryExist) ? 'yes' : 'no';
+        exit;
+
 
         //if the quantity is greater than 0
         if($product['stock_data']['qty'] > 0) {
