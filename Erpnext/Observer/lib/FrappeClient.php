@@ -37,7 +37,7 @@ class FrappeClient {
     private $_cookie_file = "";
     private $_auth = array();
     private $_basic_auth = array();
-    private $_curl_timeout = 500;
+    private $_curl_timeout = 120;
     private $_limit_page_length = 20;
 
     function __construct($host = NULL, $username = NULL, $password = NULL){

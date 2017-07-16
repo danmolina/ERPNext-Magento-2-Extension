@@ -76,6 +76,7 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
         $this->_addCategory($id, $category);
         //3. Add product
         $this->_addProduct($product, $category);
+        return $this;
         //4. Add stocks
         $this->_addStocks($sku, $qty);
         //5. Add image
@@ -96,6 +97,10 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
                 $this->_addImage($image, $sku);
             }
         }
+
+        echo '<pre>';
+        print_r($client);
+        exit;
 
         return $this;
     }
