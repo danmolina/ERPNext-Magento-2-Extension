@@ -51,6 +51,7 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
         $sku        = $product['sku'];
         $category   = 'Unknown';
         $qty        = 0;
+        $categoryExist = false;
 
         //if there is a category
         if(isset($product['category_ids'][0])) {
@@ -62,6 +63,38 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
             $category = $categoryObject->getName();
         }
 
+        //check if the category already exist
+        //init the library
+        require(dirname(__FILE__).'/lib/FrappeClient.php');
+        //authenticate the user
+        //this will generate the cookie
+        $client = new \FrappeClient($this->_host, $this->_username, $this->_password);
+
+        // GET ITEMS
+        $result = $client->search('Item Group', array());
+        foreach($result->body->data as $data) {
+            //if category exist
+            if(strtoupper($data->name) == strtoupper($category)) {
+                $categoryExist = true;
+                break;
+            }
+        }
+
+        //if category does not exist
+        if(!$categoryExist) {
+            //let's create it
+            $this->_sendPost('Item Group', array(
+                'magento_id'        => $id,
+                'doctype'           => 'Item Group',
+                'item_group_name'   => $category,
+                'is_group'          => 0,
+                'show_in_website'   => 1,
+                'name'              => $category,
+                'parent_item_group' => 'All Item Groups',
+                'old_parent'        => 'All Item Groups'));
+        }
+
+
         //if the quantity is greater than 0
         if($product['stock_data']['qty'] > 0) {
             $qty = $product['stock_data']['qty'];
@@ -69,17 +102,6 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
 
         //init the settings
         $settings = array();
-
-        //CATEGORY INFORMATION
-        $settings['category'] = array(
-            'magento_id'        => $id,
-            'doctype'           => 'Item Group',
-            'item_group_name'   => $category,
-            'is_group'          => 0,
-            'show_in_website'   => 1,
-            'name'              => $category,
-            'parent_item_group' => 'All Item Groups',
-            'old_parent'        => 'All Item Groups');
 
         //PRODUCT INFORMATION
         $settings['product'] = array(
@@ -100,9 +122,6 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
             $settings['product']['description'] = $product['description'];
         }
 
-
-        //save the category
-        $this->_sendPost('Item Group', $settings['category']);
         //save the product
         $this->_sendPost('Item', $settings['product']);
     }
