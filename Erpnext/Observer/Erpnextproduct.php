@@ -73,6 +73,59 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
         //this will generate the cookie
         new \FrappeClient($this->_host, $this->_username, $this->_password);
 
+        //2. category information
+        $categorySetting = array(
+            'magento_id'        => $id,
+            'doctype'           => 'Item Group',
+            'item_group_name'   => $category,
+            'is_group'          => 0,
+            'show_in_website'   => 1,
+            'name'              => $category,
+            'parent_item_group' => 'All Item Groups',
+            'old_parent'        => 'All Item Groups');
+
+        //save the category
+        $this->_sendPost('Item Group', $categorySetting);
+
+        //3. Add product
+        //product information
+        $productSetting = array(
+            'magento_id'        => $id,
+            'item_code'         => $sku,
+            'item_name'         => $product['name'],
+            'item_group'        => $category,
+            'stock_uom'         => 'UNIT',
+            'is_stock_item'     => '1',
+            'valuation_rate'    => 1,
+            'standard_rate'     => (float) $product['price']);
+
+        if(!empty($product['weight'])) {
+            $productSetting['net_weight'] = (float) $product['weight'];
+        }
+
+        if(!empty($product['description'])) {
+            $productSetting['description'] = $product['description'];
+        }
+
+        $this->_sendPost('Item', $productSetting);
+
+        return $this;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         //2. Add category
         $this->_addCategory($id, $category);
         
@@ -101,53 +154,6 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
         }
 
         return $this;
-
-        //3. Add product
-        //product information
-        $setting = array(
-            'magento_id'        => $id,
-            'item_code'         => $sku,
-            'item_name'         => $product['name'],
-            'item_group'        => $category,
-            'stock_uom'         => 'UNIT',
-            'is_stock_item'     => '1',
-            'valuation_rate'    => 1,
-            'standard_rate'     => (float) $product['price']);
-
-        if(!empty($product['weight'])) {
-            $setting['net_weight'] = (float) $product['weight'];
-        }
-
-        if(!empty($product['description'])) {
-            $setting['description'] = $product['description'];
-        }
-
-        //$client->insert('Item', $setting);
-        $this->_sendPost('Item', $setting);
-
-        return $this;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
     }
 
     private function _addCategory($magentoId, $category)
