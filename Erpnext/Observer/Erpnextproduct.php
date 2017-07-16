@@ -93,7 +93,8 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
             $setting['description'] = $product['description'];
         }
 
-        $client->insert('Item', $setting);
+        //$client->insert('Item', $setting);
+        $this->_sendPost('Item', $setting);
 
         return $this;
 
@@ -273,6 +274,13 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
         curl_setopt($ch, CURLOPT_TIMEOUT, 30);
         curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
 
-        return curl_exec($ch);
+        curl_exec($ch);
+
+        if(!curl_errno($ch)) {
+            $info = curl_getinfo($ch);
+            echo '<pre>';
+            print_r($info);
+            exit;
+        }
     }
 }
