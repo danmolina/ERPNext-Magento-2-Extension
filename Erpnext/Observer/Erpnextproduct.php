@@ -80,7 +80,7 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
         $this->_addProduct($product, $category);
 
         //4. Add stocks
-        $this->_addStocks($sku, $qty);
+        /*$this->_addStocks($sku, $qty);
         //5. Add image
         //if there is an image
         if(isset($product['media_gallery']['images']) 
@@ -98,7 +98,7 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
                 //add the image
                 $this->_addImage($image, $sku);
             }
-        }
+        }*/
 
         return $this;
     }
