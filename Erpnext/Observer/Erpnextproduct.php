@@ -49,7 +49,7 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
         //set the variables
         $id         = $product['entity_id'];
         $sku        = $product['sku'];
-        $category   = 'Unknown';
+        $category   = 'Products';
         $qty        = 0;
         $categoryExist = false;
 
@@ -83,15 +83,15 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
         //if category does not exist
         if(!$categoryExist) {
             //let's create it
-            $this->_sendPost('Item Group', array(
-                'magento_id'        => $id,
-                'doctype'           => 'Item Group',
-                'item_group_name'   => $category,
-                'is_group'          => 0,
-                'show_in_website'   => 1,
-                'name'              => $category,
-                'parent_item_group' => 'All Item Groups',
-                'old_parent'        => 'All Item Groups'));
+            // $this->_sendPost('Item Group', array(
+            //     'magento_id'        => $id,
+            //     'doctype'           => 'Item Group',
+            //     'item_group_name'   => $category,
+            //     'is_group'          => 0,
+            //     'show_in_website'   => 1,
+            //     'name'              => $category,
+            //     'parent_item_group' => 'All Item Groups',
+            //     'old_parent'        => 'All Item Groups'));
         }
 
         //if the quantity is greater than 0
@@ -123,6 +123,45 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
 
         //save the product
         $this->_sendPost('Item', $settings['product']);
+        //save the stocks
+        $this->_addStocks($sku, $qty);
+    }
+
+    private function _addStocks($sku, $qty)
+    {
+        //if the quantity is empty or less than 1
+        if(!$qty || $qty < 1) {
+            return $this;
+        }
+
+        //stock information
+        $setting = array(
+            'doctype'           => 'Stock Entry',
+            'title'             => 'Material Receipt',
+            'to_warehouse'      => 'Stores - NB',
+            'docstatus'         => 1,
+            'company'           => 'NexusBond ASIA Inc.',
+            'purpose'           => 'Material Receipt',
+            'request_from'      => 'MAGENTO',
+            'items'             => array(
+                array(
+                    'item_code'             => $sku,
+                    'qty'                   => $qty,
+                    't_warehouse'           => 'Stores - NB',
+                    'basic_amount'          => 0.0,
+                    'cost_center'           => 'Main - NB',
+                    'stock_uom'             => 'Kg',
+                    'conversion_factor'     => 1.0,
+                    'docstatus'             => 1,
+                    'uom'                   => 'Kg',
+                    'basic_rate'            => 0.0,
+                    'doctype'               => 'Stock Entry Detail',
+                    'expense_account'       => 'Stock Adjustment - NB',
+                    'parenttype'            => 'Stock Entry',
+                    'parentfield'           => 'items')
+            ));
+
+        return $this->_sendPost('Stock Entry', $setting);
     }
 
     private function _sendPost($doctype, $setting)
