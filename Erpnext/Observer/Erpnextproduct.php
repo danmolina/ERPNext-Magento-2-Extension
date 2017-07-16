@@ -74,10 +74,7 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
 
         //2. Add category
         //$cat = $this->_addCategory($id, $category);
-        echo '<pre>';
-        print_r($cat);
-        echo '</pre>';
-        echo '=======================================';
+        
         //3. Add product
         $prod = $this->_addProduct($product, $category);
         echo '<pre>';
