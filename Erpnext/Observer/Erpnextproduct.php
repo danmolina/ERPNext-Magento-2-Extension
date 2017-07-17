@@ -109,6 +109,7 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
             'item_name'         => $product['name'],
             'item_group'        => $category,
             'stock_uom'         => 'UNIT',
+            'request_from'      => 'MAGENTO',
             'is_stock_item'     => '1',
             'valuation_rate'    => 1,
             'standard_rate'     => (float) $product['price']);
