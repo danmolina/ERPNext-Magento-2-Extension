@@ -123,8 +123,11 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
 
         //save the product
         $this->_sendPost('Item', $settings['product']);
+        return $this;
         //save the stocks
         $this->_addStocks($sku, $qty);
+        
+
         //5. Add image
         //if there is an image
         if(isset($product['media_gallery']['images']) 
