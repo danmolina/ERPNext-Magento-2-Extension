@@ -71,7 +71,7 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
         $client = new \FrappeClient($this->_host, $this->_username, $this->_password);
 
         // GET ITEMS
-        /*$result = $client->search('Item Group', array());
+        $result = $client->search('Item Group', array());
         foreach($result->body->data as $data) {
             //if category exist
             if(strtoupper($data->name) == strtoupper($category)) {
@@ -89,10 +89,11 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
                 'item_group_name'   => $category,
                 'is_group'          => 0,
                 'show_in_website'   => 1,
+                'request_from'      => 'MAGENTO',
                 'name'              => $category,
                 'parent_item_group' => 'All Item Groups',
                 'old_parent'        => 'All Item Groups'));
-        }*/
+        }
 
         //if the quantity is greater than 0
         if($product['stock_data']['qty'] > 0) {
