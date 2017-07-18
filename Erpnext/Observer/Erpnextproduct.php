@@ -102,11 +102,10 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
         //init the settings
         $settings = array();
 
-        $uniq = uniqid();
         //PRODUCT INFORMATION
         $settings['product'] = array(
             'magento_id'        => $id,
-            'item_code'         => $uniq,
+            'item_code'         => $sku,
             'item_name'         => $product['name'],
             'item_group'        => $category,
             'stock_uom'         => 'UNIT',
