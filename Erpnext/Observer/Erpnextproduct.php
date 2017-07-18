@@ -103,6 +103,9 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
         //init the settings
         $settings = array();
 
+        //format the price
+        $amount = preg_replace('/[^0-9\.]/', '', $product['price']);
+
         //PRODUCT INFORMATION
         $settings['product'] = array(
             'magento_id'        => $id,
@@ -113,7 +116,7 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
             'request_from'      => 'MAGENTO',
             'is_stock_item'     => '1',
             'valuation_rate'    => 1,
-            'standard_rate'     => (float) $product['price']);
+            'standard_rate'     => (float) $amount);
 
         if(!empty($product['weight'])) {
             $settings['product']['net_weight'] = (float) $product['weight'];
