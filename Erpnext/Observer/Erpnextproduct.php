@@ -126,8 +126,6 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
         $this->_sendPost('Item', $settings['product']);
         //save the stocks
         $this->_addStocks($sku, $qty);
-        return $this;
-
         //5. Add image
         //if there is an image
         if(isset($product['media_gallery']['images']) 
@@ -203,6 +201,7 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
             'file_url'              => $uri.$image['file'],
             'attached_to_name'      => $sku,
             'attached_to_doctype'   => 'Item',
+            'request_from'          => 'MAGENTO',
             'is_private'            => 1);
 
         return $this->_sendPost('File', $setting);
