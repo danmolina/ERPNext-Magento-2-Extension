@@ -60,7 +60,7 @@ class Erpnextproduct implements \Magento\Framework\Event\ObserverInterface
                 ->create('Magento\Catalog\Model\Category')
                 ->load($product['category_ids'][0]);
             
-            //$category = $categoryObject->getName();
+            $category = $categoryObject->getName();
         }
 
         //check if the category already exist
